@@ -1,0 +1,8 @@
+JOVI Vision — Debuggers
+FIAP · Engenharia de Software · Challenge 2026
+
+Enrico Vieira de Almeida Vidal - RM569217
+Vinícius Fuentes Cavalcanti - RM570818
+Thiago Fernandes Kulesza - RM568922
+Guilherme De Rosa Peres - RM569193
+Kelvyn Lukas Junqueira da Silva - RM572950

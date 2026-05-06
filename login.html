@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOVI Vision — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink:      #E91E8C;
+    --pink-l:    #FF4DAB;
+    --pink-glow: rgba(233,30,140,0.4);
+    --teal:      #00C2CB;
+    --amber:     #F59E0B;
+    --bg:        #060a15;
+    --bg2:       #0a0f1f;
+    --border:    rgba(255,255,255,0.10);
+    --text:      rgba(255,255,255,0.95);
+    --text-mid:  rgba(255,255,255,0.60);
+    --text-dim:  rgba(255,255,255,0.35);
+    --r-md: 14px;
+    --r-lg: 22px;
+    --blur: blur(18px);
+  }
+
+  html, body {
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 5%,  rgba(233,30,140,0.10), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 95%, rgba(0,194,203,0.10),  transparent 55%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* ── SLIDESHOW BG ── */
+  .bg-slideshow {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  }
+  .bg-slide {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    pointer-events: none;
+  }
+  .bg-slide.active { opacity: 1; }
+  .bg-slide-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 120px;
+    filter: blur(2px);
+    opacity: 0.04;
+  }
+
+  /* ── CARD ── */
+  .card-wrap {
+    position: relative; z-index: 10;
+    width: 100%; max-width: 420px;
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(233,30,140,0.12);
+    border: 1px solid rgba(233,30,140,0.3);
+    border-radius: 40px;
+    margin-bottom: 16px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--pink);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--pink);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ transform:scale(1);   opacity:1; }
+    50%    { transform:scale(1.4); opacity:.7; }
+  }
+  .logo-text {
+    font-size: 14px; font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--pink), var(--pink-l));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .logo-title {
+    font-size: 28px; font-weight: 800;
+    line-height: 1.15;
+  }
+  .logo-sub {
+    font-size: 13px; color: var(--text-mid);
+    margin-top: 6px;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    backdrop-filter: var(--blur);
+    padding: 32px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 80px rgba(233,30,140,0.08);
+  }
+
+  .form-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 9px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    background: transparent;
+    color: var(--text-mid);
+  }
+  .tab-btn.active {
+    background: var(--pink);
+    color: #fff;
+    box-shadow: 0 4px 16px var(--pink-glow);
+  }
+
+  /* panels */
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  .field-group {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-bottom: 20px;
+  }
+  .field {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+  .field input {
+    padding: 13px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field input::placeholder { color: var(--text-dim); }
+  .field input:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px rgba(233,30,140,0.15);
+  }
+  .field input.error {
+    border-color: #f87171;
+    box-shadow: 0 0 0 3px rgba(248,113,113,0.15);
+  }
+  .field-error {
+    font-size: 11px;
+    color: #f87171;
+    min-height: 14px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(90deg, var(--pink), var(--pink-l));
+    border: none;
+    border-radius: var(--r-md);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .3px;
+    box-shadow: 0 8px 24px var(--pink-glow);
+    transition: opacity .2s, transform .15s;
+  }
+  .submit-btn:hover  { opacity: .9; }
+  .submit-btn:active { transform: scale(.98); }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .35s ease;
+    white-space: nowrap;
+    z-index: 9999;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.success {
+    background: rgba(0,194,203,0.2);
+    border: 1px solid var(--teal);
+    color: var(--teal);
+  }
+  .toast.error-t {
+    background: rgba(248,113,113,0.2);
+    border: 1px solid #f87171;
+    color: #f87171;
+  }
+
+  /* slideshow dots */
+  .slide-dots {
+    display: flex; justify-content: center; gap: 6px; margin-top: 24px;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: background .3s, transform .3s;
+  }
+  .dot.active { background: var(--pink); transform: scale(1.4); }
+
+  /* user info display (after login) */
+  .user-info {
+    display: none;
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .user-info.show { display: block; }
+  .user-greeting {
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .user-rm {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+  .user-redirect {
+    font-size: 12px;
+    color: var(--teal);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SLIDESHOW BG ── -->
+<div class="bg-slideshow" id="bgSlideshow">
+  <div class="bg-slide active" id="bg0"><div class="bg-slide-inner">📷</div></div>
+  <div class="bg-slide"        id="bg1"><div class="bg-slide-inner">📖</div></div>
+  <div class="bg-slide"        id="bg2"><div class="bg-slide-inner">🖥️</div></div>
+  <div class="bg-slide"        id="bg3"><div class="bg-slide-inner">📄</div></div>
+</div>
+
+<!-- ── CARD ── -->
+<div class="card-wrap">
+
+  <div class="logo-area">
+    <div class="logo-badge">
+      <span class="logo-dot"></span>
+      <span class="logo-text">JOVI VISION</span>
+    </div>
+    <h1 class="logo-title">Câmera assistiva<br>para estudantes</h1>
+    <p class="logo-sub">Faça login para acessar o protótipo interativo</p>
+  </div>
+
+  <div class="form-card">
+
+    <!-- TABS -->
+    <div class="form-tabs">
+      <button class="tab-btn active" id="tab-login" type="button">Entrar</button>
+      <button class="tab-btn"        id="tab-reg"   type="button">Cadastrar</button>
+    </div>
+
+    <!-- PAINEL LOGIN -->
+    <div class="form-panel active" id="panel-login">
+      <div class="field-group">
+        <div class="field">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+          <span class="field-error" id="err-login-email"></span>
+        </div>
+        <div class="field">
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password">
+          <span class="field-error" id="err-login-senha"></span>
+        </div>
+      </div>
+      <button class="submit-btn" id="btn-login" type="button">Entrar no JOVI Vision</button>
+      <div class="user-info" id="user-info-login">
+        <p class="user-greeting" id="user-greeting"></p>
+        <p class="user-rm"       id="user-rm"></p>
+        <p class="user-redirect">Redirecionando para o protótipo...</p>
+      </div>
+    </div>
+
+    <!-- PAINEL CADASTRO -->
+    <div class="form-panel" id="panel-reg">
+      <div class="field-group">
+        <div class="field">
+          <label for="reg-nome">Nome completo</label>
+          <input type="text" id="reg-nome" placeholder="Seu nome" autocomplete="name">
+          <span class="field-error" id="err-reg-nome"></span>
+        </div>
+        <div class="field">
+          <label for="reg-rm">RM (número de matrícula)</label>
+          <input type="text" id="reg-rm" placeholder="000000" maxlength="10">
+          <span class="field-error" id="err-reg-rm"></span>
+        </div>
+        <div class="field">
+          <label for="reg-email">E-mail</label>
+          <input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email">
+          <span class="field-error" id="err-reg-email"></span>
+        </div>
+        <div class="field">
+          <label for="reg-senha">Senha (mín. 6 caracteres)</label>
+          <input type="password" id="reg-senha" placeholder="••••••••" autocomplete="new-password">
+          <span class="field-error" id="err-reg-senha"></span>
+        </div>
+      </div>
+      <button class="submit-btn" id="btn-reg" type="button">Criar conta</button>
+    </div>
+
+  </div><!-- /form-card -->
+
+  <!-- SLIDESHOW DOTS -->
+  <div class="slide-dots" id="slideDots">
+    <span class="dot active"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+
+</div><!-- /card-wrap -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── USERS "DB" em memória ──────────────────────────────────────────────
+  const users = [
+    { nome: "Debugger Demo", rm: "000001", email: "demo@jovi.com", senha: "123456" }
+  ];
+
+  // ── SLIDESHOW ──────────────────────────────────────────────────────────
+  let currentSlide = 0;
+  const slides     = document.querySelectorAll('.bg-slide');
+  const dots       = document.querySelectorAll('.dot');
+
+  function nextSlide() {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+  setInterval(nextSlide, 2800);
+
+  // ── TABS ──────────────────────────────────────────────────────────────
+  const tabLogin  = document.getElementById('tab-login');
+  const tabReg    = document.getElementById('tab-reg');
+  const panelLogin= document.getElementById('panel-login');
+  const panelReg  = document.getElementById('panel-reg');
+
+  tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active');
+    tabReg.classList.remove('active');
+    panelLogin.classList.add('active');
+    panelReg.classList.remove('active');
+    clearErrors();
+  });
+
+  tabReg.addEventListener('click', () => {
+    tabReg.classList.add('active');
+    tabLogin.classList.remove('active');
+    panelReg.classList.add('active');
+    panelLogin.classList.remove('active');
+    clearErrors();
+  });
+
+  // ── TOAST ──────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ── ERROS ──────────────────────────────────────────────────────────────
+  function setError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = msg;
+    const input = el?.previousElementSibling;
+    if (input) input.classList.toggle('error', !!msg);
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+    document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+  }
+
+  // ── VALIDAÇÃO HELPERS ──────────────────────────────────────────────────
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+  function isNumeric(v)    { return /^\d+$/.test(v.trim()); }
+
+  // ── MANIPULAÇÃO DE STRINGS (slide 22: strings e variáveis) ─────────────
+  function formatNome(nome) {
+    return nome.trim()
+      .split(' ')
+      .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  function buildGreeting(nome) {
+    const hora = new Date().getHours();
+    let saudacao;
+    if      (hora < 12) saudacao = 'Bom dia';
+    else if (hora < 18) saudacao = 'Boa tarde';
+    else                saudacao = 'Boa noite';
+    return `${saudacao}, ${nome.split(' ')[0]}! `;
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────
+  document.getElementById('btn-login').addEventListener('click', () => {
+    clearErrors();
+    const email = document.getElementById('login-email').value;
+    const senha = document.getElementById('login-senha').value;
+
+    let ok = true;
+
+    if (!email) {
+      setError('err-login-email', 'Informe seu e-mail'); ok = false;
+    } else if (!isValidEmail(email)) {
+      setError('err-login-email', 'E-mail inválido'); ok = false;
+    }
+
+    if (!senha) {
+      setError('err-login-senha', 'Informe sua senha'); ok = false;
+    } else if (senha.length < 6) {
+      setError('err-login-senha', 'Senha deve ter pelo menos 6 caracteres'); ok = false;
+    }
+
+    if (!ok) return;
+
+    const user = users.find(u => u.email === email.trim() && u.senha === senha);
+
+    if (!user) {
+      alert('⚠️ Credenciais incorretas. Verifique e-mail e senha.');
+      setError('err-login-email', 'E-mail ou senha incorretos');
+      return;
+    }
+
+    // Sucesso — manipulação de strings e DOM
+    const nomeFormatado = formatNome(user.nome);
+    const greeting      = buildGreeting(nomeFormatado);
+    const rmFormatado   = `RM: ${user.rm}`;
+
+    document.getElementById('user-greeting').textContent = greeting;
+    document.getElementById('user-rm').textContent       = rmFormatado;
+    document.getElementById('user-info-login').classList.add('show');
+    document.getElementById('btn-login').style.display  = 'none';
+
+    showToast(`✅ Login realizado! Bem-vindo(a), ${nomeFormatado.split(' ')[0]}!`, 'success');
+
+    // Salva sessão e redireciona
+    sessionStorage.setItem('jovi_user', JSON.stringify({ nome: nomeFormatado, rm: user.rm }));
+    setTimeout(() => { window.location.href = 'index.html'; }, 2200);
+  });
+
+  // ── CADASTRO ───────────────────────────────────────────────────────────
+  document.getElementById('btn-reg').addEventListener('click', () => {
+    clearErrors();
+    const nome  = document.getElementById('reg-nome').value;
+    const rm    = document.getElementById('reg-rm').value;
+    const email = document.getElementById('reg-email').value;
+    const senha = document.getElementById('reg-senha').value;
+
+    let ok = true;
+
+    if (!nome.trim() || nome.trim().length < 3) {
+      setError('err-reg-nome', 'Nome deve ter pelo menos 3 caracteres'); ok = false;
+    }
+    if (!rm.trim()) {
+      setError('err-reg-rm', 'Informe seu RM'); ok = false;
+    } else if (!isNumeric(rm)) {
+      setError('err-reg-rm', 'RM deve conter apenas números'); ok = false;
+    }
+    if (!email.trim()) {
+      setError('err-reg-email', 'Informe seu e-mail'); ok = false;
+    } else if (!isValidEmail(email)) {
+      setError('err-reg-email', 'E-mail inválido'); ok = false;
+    } else if (users.find(u => u.email === email.trim())) {
+      setError('err-reg-email', 'Este e-mail já está cadastrado'); ok = false;
+    }
+    if (!senha) {
+      setError('err-reg-senha', 'Informe uma senha'); ok = false;
+    } else if (senha.length < 6) {
+      setError('err-reg-senha', 'Senha deve ter pelo menos 6 caracteres'); ok = false;
+    }
+
+    if (!ok) return;
+
+    const novoUser = {
+      nome:  formatNome(nome),
+      rm:    rm.trim(),
+      email: email.trim(),
+      senha: senha
+    };
+    users.push(novoUser);
+
+    const msg = prompt(
+      `Conta criada com sucesso!\n\nNome: ${novoUser.nome}\nRM: ${novoUser.rm}\nE-mail: ${novoUser.email}\n\nDeseja fazer login agora? (Digite SIM para confirmar)`
+    );
+
+    if (msg && msg.trim().toLowerCase() === 'sim') {
+      tabLogin.click();
+      document.getElementById('login-email').value = novoUser.email;
+      showToast('✅ Conta criada! Faça login para continuar.', 'success');
+    } else {
+      showToast(`✅ Cadastro de ${novoUser.nome.split(' ')[0]} realizado!`, 'success');
+      // Limpa campos
+      ['reg-nome','reg-rm','reg-email','reg-senha'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+  });
+
+  // ── ENTER nos inputs ───────────────────────────────────────────────────
+  document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const isLogin = input.closest('#panel-login');
+        if (isLogin) document.getElementById('btn-login').click();
+        else         document.getElementById('btn-reg').click();
+      }
+    });
+  });
+
+  // ── Mostra usuário logado se já tiver sessão ───────────────────────────
+  const sessao = sessionStorage.getItem('jovi_user');
+  if (sessao) {
+    const u = JSON.parse(sessao);
+    const linkDiv = document.createElement('p');
+    linkDiv.style.cssText = 'text-align:center;margin-top:14px;font-size:13px;color:var(--teal);';
+    linkDiv.innerHTML = `Você já está logado como <strong>${u.nome.split(' ')[0]}</strong>. <a href="index.html" style="color:var(--pink);text-decoration:none;font-weight:700;">Ir para o app →</a>`;
+    document.querySelector('.form-card').appendChild(linkDiv);
+  }
+</script>
+</body>
+</html>

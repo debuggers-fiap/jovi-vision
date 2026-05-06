@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOVI Vision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink:       #E91E8C;
+    --pink-l:     #FF4DAB;
+    --pink-glow:  rgba(233, 30, 140, 0.45);
+    --teal:       #00C2CB;
+    --amber:      #F59E0B;
+    --white:      #FFFFFF;
+    --text:       rgba(255, 255, 255, 0.95);
+    --text-mid:   rgba(255, 255, 255, 0.65);
+    --text-dim:   rgba(255, 255, 255, 0.40);
+    --border:     rgba(255, 255, 255, 0.12);
+    --border-s:   rgba(255, 255, 255, 0.06);
+    --blur-lg:    blur(22px);
+    --blur-md:    blur(14px);
+    --shadow-lg:  0 30px 80px rgba(0, 0, 0, 0.6);
+    --shadow-pink: 0 0 80px rgba(233, 30, 140, 0.25);
+    --r-sm:  8px;
+    --r-md:  14px;
+    --r-lg:  22px;
+  }
+
+  html, body { min-height: 100vh; }
+
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(233, 30, 140, 0.08), transparent 50%),
+      radial-gradient(ellipse 70% 50% at 80% 90%, rgba(0, 194, 203, 0.08), transparent 50%),
+      linear-gradient(180deg, #060a15 0%, #0a0f1f 100%);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+
+  /* ── TOP BAR (usuário logado) ── */
+  .top-bar {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 20px;
+    border-bottom: 1px solid var(--border-s);
+    margin-bottom: 28px;
+  }
+  .top-bar-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: .5px;
+  }
+  .top-bar-dot {
+    width: 7px; height: 7px;
+    background: var(--pink); border-radius: 50%;
+    box-shadow: 0 0 8px var(--pink);
+    animation: pulseDot 1.5s ease-in-out infinite;
+  }
+  .top-bar-user {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .top-bar-greeting {
+    font-size: 12px;
+    color: var(--text-mid);
+  }
+  .top-bar-greeting strong { color: var(--text); }
+  .top-bar-logout {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .2s;
+  }
+  .top-bar-logout:hover { background: rgba(233,30,140,0.15); color: var(--pink); border-color: var(--pink); }
+
+  /* ── LAYOUT ── */
+  .app-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 900px;
+    flex-wrap: wrap;
+  }
+
+  /* ── NAV ── */
+  .app-nav {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    backdrop-filter: var(--blur-md);
+    position: sticky;
+    top: 40px;
+  }
+  .nav-group-label {
+    font-size: 10px; color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 8px 12px 4px;
+  }
+  .nav-btn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: transparent; border: none;
+    border-radius: var(--r-sm);
+    color: var(--text-mid);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; text-align: left;
+    transition: all 0.18s ease; width: 100%;
+  }
+  .nav-btn-icon {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border-radius: var(--r-sm);
+    flex-shrink: 0; font-size: 14px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+  .nav-btn.active {
+    background: linear-gradient(90deg, rgba(233,30,140,0.18), rgba(233,30,140,0.04));
+    color: var(--white);
+    box-shadow: inset 3px 0 0 var(--pink);
+  }
+  .nav-btn.active .nav-btn-icon { background: var(--pink); color: var(--white); }
+
+  /* ── SLIDESHOW THUMBNAILS PANEL ── */
+  .slideshow-panel {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-s);
+  }
+  .slideshow-label {
+    font-size: 10px; color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 0 12px 8px;
+  }
+  .slideshow-thumbs {
+    display: flex; flex-direction: column; gap: 4px; padding: 0 4px;
+  }
+  .thumb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background .18s;
+    border: 1px solid transparent;
+  }
+  .thumb-item:hover { background: rgba(255,255,255,0.04); }
+  .thumb-item.active-slide {
+    background: rgba(0,194,203,0.1);
+    border-color: rgba(0,194,203,0.25);
+  }
+  .thumb-icon { font-size: 18px; flex-shrink: 0; }
+  .thumb-meta { display: flex; flex-direction: column; gap: 1px; }
+  .thumb-name { font-size: 11px; font-weight: 600; color: var(--text); }
+  .thumb-desc { font-size: 10px; color: var(--text-dim); }
+  .slide-counter {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    padding: 8px 0 0;
+  }
+
+  /* ── DEVICE ── */
+  .device-col { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .phone-wrap { position: relative; display: flex; justify-content: center; }
+  .phone {
+    width: 375px; height: 812px;
+    background: #000; border-radius: 54px;
+    border: 2px solid rgba(255,255,255,0.14);
+    overflow: hidden; position: relative;
+    box-shadow: 0 0 0 8px rgba(255,255,255,0.03), var(--shadow-lg), var(--shadow-pink);
+  }
+  .notch {
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 32px;
+    background: #000; border-radius: 0 0 18px 18px; z-index: 200;
+  }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden; }
+  .screen.active { display: flex; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:scale(.98)} to{opacity:1;transform:scale(1)} }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px 0; z-index: 150;
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: var(--white); }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+
+  @keyframes pulseDot {
+    0%,100%{transform:scale(1);   opacity:1;}
+    50%    {transform:scale(1.3); opacity:.7;}
+  }
+
+  /* ── CAMERA SHARED ── */
+  .cam-viewfinder {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40,80,140,0.4), transparent 60%),
+      linear-gradient(160deg, #152b55 0%, #0a1530 50%, #101e3a 100%);
+  }
+  .focus-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 55px 55px;
+  }
+  .scan-line {
+    position: absolute; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    box-shadow: 0 0 12px var(--teal);
+    animation: scanMove 2.8s ease-in-out infinite;
+  }
+  @keyframes scanMove {
+    0%  {top:25%;opacity:0;} 15%{opacity:1;} 85%{opacity:1;} 100%{top:70%;opacity:0;}
+  }
+
+  /* ── CAM TOP ── */
+  .cam-top {
+    position: absolute; top: 50px; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px; z-index: 50;
+  }
+  .cam-top-left,.cam-top-right { display: flex; gap: 10px; }
+  .cam-icon-btn {
+    width: 38px; height: 38px;
+    background: rgba(0,0,0,0.5); backdrop-filter: var(--blur-md);
+    border: 1px solid var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--white);
+  }
+  .cam-icon-btn:hover{background:rgba(0,0,0,.7);}
+  .cam-icon-btn svg{width:18px;height:18px;}
+
+  .jovi-brand-badge {
+    position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: rgba(0,0,0,0.55); backdrop-filter: var(--blur-md);
+    border: 1px solid var(--border); border-radius: 20px;
+    font-size: 12px; font-weight: 700; z-index: 50; letter-spacing: -.2px;
+  }
+  .jovi-brand-badge-dot {
+    width: 6px; height: 6px; background: var(--pink); border-radius: 50%;
+    box-shadow: 0 0 8px var(--pink); animation: pulseDot 1.5s ease-in-out infinite;
+  }
+
+  /* ── MODE STRIP ── */
+  .mode-strip {
+    position: absolute; bottom: 150px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 4px; z-index: 50;
+    padding: 0 20px; overflow-x: auto; scrollbar-width: none;
+  }
+  .mode-strip::-webkit-scrollbar{display:none;}
+  .mode-pill {
+    padding: 8px 14px; font-size: 12px; font-weight: 600;
+    color: var(--text-dim); cursor: pointer; white-space: nowrap;
+    transition: all .2s; background: transparent; border: none;
+    font-family: 'DM Sans', sans-serif; border-radius: 16px;
+  }
+  .mode-pill:hover{color:var(--white);}
+  .mode-pill.active{color:var(--amber);font-weight:700;}
+
+  /* ── SHUTTER ── */
+  .cam-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 20px 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 60;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.4));
+  }
+  .thumb-preview {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: linear-gradient(135deg,#2a3a5c,#1a2540);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: transform .15s;
+  }
+  .thumb-preview:hover{transform:scale(1.05);}
+  .shutter {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 4px solid var(--white); padding: 3px;
+    cursor: pointer; background: transparent;
+  }
+  .shutter-inner {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: var(--white); transition: all .15s;
+  }
+  .shutter:active .shutter-inner{background:var(--pink);transform:scale(.9);}
+  .flip-btn {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.15); backdrop-filter: var(--blur-md);
+    border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--white);
+  }
+
+  /* ── SCREEN 1 ── */
+  #s-cam{background:#000;}
+  .cam-scene{position:absolute;inset:0;overflow:hidden;}
+  .scene-building{position:absolute;bottom:25%;width:80px;height:120px;background:rgba(20,35,70,.5);border-radius:4px 4px 0 0;}
+  .scene-building.left{left:5%;}
+  .scene-building.right{right:5%;width:65px;height:95px;}
+  .scene-street{position:absolute;bottom:0;width:100%;height:65%;background:linear-gradient(to bottom,transparent,rgba(10,20,40,.3));}
+  .scene-person{position:absolute;bottom:28%;left:38%;width:28px;height:60px;background:rgba(40,70,130,.55);border-radius:14px 14px 6px 6px;}
+  .zoom-indicator{position:absolute;bottom:210px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;}
+  .zoom-btn{padding:5px 11px;background:rgba(0,0,0,.55);backdrop-filter:var(--blur-md);border-radius:20px;font-size:11px;font-weight:600;color:var(--text-mid);cursor:pointer;border:1px solid var(--border-s);transition:all .2s;}
+  .zoom-btn.active{color:var(--amber);background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);}
+
+  /* ── SCREEN 2 ── */
+  #s-estudo{background:linear-gradient(160deg,#0f1628 0%,#06091a 100%);}
+  .estudo-doc{position:absolute;top:18%;left:12%;right:12%;height:38%;background:rgba(255,255,255,.9);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.5);transform:rotate(-1.5deg);}
+  .doc-line{height:6px;background:rgba(13,27,62,.75);border-radius:3px;width:100%;}
+  .doc-line.title{height:10px;width:70%;background:rgba(13,27,62,.95);margin-bottom:6px;}
+  .doc-line.med{width:82%;}
+  .doc-line.short{width:55%;}
+  .doc-highlight{position:absolute;top:26%;left:18%;right:18%;height:18px;background:linear-gradient(90deg,rgba(233,30,140,.3),rgba(233,30,140,.15));border:1.5px solid var(--pink);border-radius:3px;animation:highlightPulse 2s ease-in-out infinite;}
+  @keyframes highlightPulse{0%,100%{box-shadow:0 0 12px rgba(233,30,140,.5);}50%{box-shadow:0 0 24px rgba(233,30,140,.9);}}
+  .ocr-panel{position:absolute;bottom:220px;left:14px;right:14px;padding:16px;background:rgba(13,27,62,.88);backdrop-filter:var(--blur-lg);border:1px solid rgba(0,194,203,.3);border-radius:var(--r-lg);display:flex;flex-direction:column;gap:12px;z-index:40;}
+  .ocr-panel-head{display:flex;align-items:center;justify-content:space-between;}
+  .ocr-tag{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--teal);letter-spacing:1px;font-family:'DM Mono',monospace;}
+  .ocr-conf{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+  .ocr-text{font-size:13px;line-height:1.5;color:var(--white);max-height:70px;overflow:hidden;}
+  .ocr-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .ocr-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;border-radius:var(--r-sm);cursor:pointer;border:1px solid transparent;transition:opacity .2s;}
+  .ocr-btn:hover{opacity:.85;}
+  .ocr-btn.primary{flex:1;background:var(--teal);color:#000;border:none;}
+  .ocr-btn.secondary{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--white);}
+  .ocr-btn.translate{background:rgba(233,30,140,.15);border-color:rgba(233,30,140,.4);color:var(--pink);}
+
+  /* ── SCREEN 3 ── */
+  #s-ocr{background:linear-gradient(160deg,#0a1425 0%,#040810 100%);}
+  .blackboard{position:absolute;top:15%;left:8%;right:8%;height:42%;background:linear-gradient(160deg,#1f3d2d 0%,#132818 100%);border-radius:4px;box-shadow:0 0 0 6px #5c4a2c,0 20px 50px rgba(0,0,0,.6);padding:24px;display:flex;flex-direction:column;gap:10px;}
+  .chalk-line{height:5px;background:rgba(255,255,255,.7);border-radius:2px;opacity:.7;}
+  .chalk-line.title{height:9px;width:60%;background:rgba(255,255,255,.9);margin-bottom:8px;}
+  .chalk-line.med{width:78%;}
+  .chalk-line.srt{width:45%;}
+  .scan-zone{position:absolute;top:14%;left:7%;right:7%;height:44%;pointer-events:none;}
+  .scan-corner{position:absolute;width:28px;height:28px;border:3px solid var(--pink);}
+  .scan-corner.tl{top:0;left:0;border-right:none;border-bottom:none;}
+  .scan-corner.tr{top:0;right:0;border-left:none;border-bottom:none;}
+  .scan-corner.bl{bottom:0;left:0;border-right:none;border-top:none;}
+  .scan-corner.br{bottom:0;right:0;border-left:none;border-top:none;}
+  .scan-label{position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:var(--pink);color:var(--white);padding:4px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.2px;font-family:'DM Mono',monospace;animation:pulseLabel 1.5s ease-in-out infinite;white-space:nowrap;}
+  @keyframes pulseLabel{0%,100%{box-shadow:0 0 0 0 rgba(233,30,140,.5);}50%{box-shadow:0 0 0 8px rgba(233,30,140,0);}}
+  .result-panel{position:absolute;bottom:220px;left:14px;right:14px;padding:16px;background:rgba(13,27,62,.92);backdrop-filter:var(--blur-lg);border:1px solid rgba(233,30,140,.3);border-radius:var(--r-lg);display:flex;flex-direction:column;gap:12px;z-index:40;}
+  .result-head{display:flex;align-items:center;gap:8px;}
+  .result-check{width:20px;height:20px;background:var(--pink);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .result-title{font-size:10px;font-weight:700;color:var(--pink);letter-spacing:1px;font-family:'DM Mono',monospace;}
+  .result-text{font-size:13px;line-height:1.5;max-height:60px;overflow:hidden;}
+  .result-actions{display:flex;gap:6px;}
+  .res-btn{flex:1;padding:9px 6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;border-radius:var(--r-sm);cursor:pointer;border:1px solid var(--border);color:var(--white);background:rgba(255,255,255,.05);transition:opacity .2s;}
+  .res-btn:hover{opacity:.8;}
+  .res-btn.pink{background:var(--pink);border-color:var(--pink);}
+
+  /* ── SCREEN 4 ── */
+  #s-doc{background:linear-gradient(160deg,#0a1530 0%,#050811 100%);}
+  .doc-preview{position:absolute;top:16%;left:17%;right:17%;height:44%;background:linear-gradient(180deg,#f5f1e8,#e8e2d2);border-radius:2px;padding:22px 18px;display:flex;flex-direction:column;gap:7px;transform:perspective(600px) rotateX(4deg) rotateY(-2deg);box-shadow:0 30px 60px rgba(0,0,0,.6);}
+  .doc-preview-line{height:4px;background:rgba(40,60,100,.85);border-radius:2px;}
+  .doc-preview-line.h{height:8px;width:75%;background:rgba(13,27,62,.95);margin-bottom:4px;}
+  .doc-preview-line.m{width:85%;}
+  .doc-preview-line.s{width:55%;}
+  .doc-frame{position:absolute;top:14%;left:14%;right:14%;height:48%;pointer-events:none;border:2.5px dashed var(--teal);border-radius:4px;animation:framePulse 2s ease-in-out infinite;}
+  @keyframes framePulse{0%,100%{box-shadow:0 0 0 rgba(0,194,203,.4);}50%{box-shadow:0 0 30px rgba(0,194,203,.5);}}
+  .doc-corner{position:absolute;width:16px;height:16px;background:var(--teal);border:2px solid var(--white);border-radius:50%;box-shadow:0 0 10px var(--teal);}
+  .doc-corner.tl{top:-8px;left:-8px;}
+  .doc-corner.tr{top:-8px;right:-8px;}
+  .doc-corner.bl{bottom:-8px;left:-8px;}
+  .doc-corner.br{bottom:-8px;right:-8px;}
+  .doc-info-banner{position:absolute;top:110px;left:16px;right:16px;padding:9px 12px;background:rgba(0,194,203,.15);border:1px solid rgba(0,194,203,.4);border-radius:var(--r-md);display:flex;align-items:center;gap:10px;backdrop-filter:var(--blur-md);z-index:40;}
+  .doc-info-icon{font-size:14px;}
+  .doc-info-text{font-size:10.5px;font-weight:500;color:var(--teal);}
+
+  /* ── SCREEN 5 ── */
+  #s-doc-result{background:linear-gradient(180deg,#0D1B3E 0%,#060a15 100%);}
+  .result-head-bar{position:absolute;top:50px;left:0;right:0;padding:0 18px;display:flex;align-items:center;justify-content:space-between;z-index:50;}
+  .res-title-group{display:flex;flex-direction:column;gap:2px;text-align:center;}
+  .res-main-title{font-size:15px;font-weight:700;}
+  .res-main-sub{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+  .doc-card{position:absolute;top:115px;left:20px;right:20px;bottom:290px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;flex-direction:column;overflow:hidden;}
+  .doc-card-preview{flex:1;background:linear-gradient(180deg,#f5f1e8,#e8e2d2);margin:12px;border-radius:6px;padding:18px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 10px rgba(0,0,0,.1);}
+  .doc-card-line{height:4px;background:rgba(13,27,62,.75);border-radius:2px;}
+  .doc-card-line.h{height:7px;width:60%;background:rgba(13,27,62,.95);margin-bottom:4px;}
+  .doc-card-line.m{width:80%;}
+  .doc-card-line.s{width:50%;}
+  .doc-card-meta{display:flex;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--border-s);font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+  .doc-card-meta strong{color:var(--white);}
+  .doc-actions-grid{position:absolute;bottom:40px;left:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:40;}
+  .doc-action-primary{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(90deg,var(--pink),var(--pink-l));color:var(--white);border:none;border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px var(--pink-glow);transition:opacity .2s;}
+  .doc-action-primary:hover{opacity:.9;}
+  .doc-actions-row{display:flex;gap:8px;}
+  .doc-action-chip{flex:1;padding:12px 6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--r-md);color:var(--white);font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .2s;}
+  .doc-action-chip:hover{opacity:.8;}
+  .doc-action-chip svg{width:18px;height:18px;}
+  .doc-action-chip.translate{background:rgba(0,194,203,.12);border-color:rgba(0,194,203,.35);color:var(--teal);}
+
+  /* ── SCREEN 6 ── */
+  #s-config{background:linear-gradient(180deg,#0D1B3E 0%,#060a15 100%);padding:0;}
+  .config-head{padding:14px 22px 8px;display:flex;align-items:center;gap:12px;margin-top:38px;}
+  .back-btn{width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .config-title{font-size:18px;font-weight:700;}
+  .config-content{flex:1;display:flex;flex-direction:column;padding:10px 20px 32px;gap:18px;overflow-y:auto;}
+  .config-group{display:flex;flex-direction:column;gap:2px;}
+  .config-group-title{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 4px;font-family:'DM Mono',monospace;}
+  .config-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border-s);border-radius:var(--r-md);gap:12px;}
+  .config-row+.config-row{margin-top:6px;}
+  .config-row-label{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .config-row-title{font-size:13px;font-weight:600;}
+  .config-row-desc{font-size:11px;color:var(--text-dim);}
+  .switch{width:44px;height:24px;background:rgba(255,255,255,.1);border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;border:none;}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:var(--white);border-radius:50%;transition:left .2s;}
+  .switch.on{background:var(--pink);}
+  .switch.on::after{left:22px;}
+  .slider-row{display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border-s);border-radius:var(--r-md);}
+  .slider-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;}
+  .slider-track{height:4px;background:rgba(255,255,255,.1);border-radius:2px;position:relative;}
+  .slider-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--pink),var(--pink-l));border-radius:2px;}
+  .slider-thumb{position:absolute;top:50%;width:16px;height:16px;background:var(--white);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+  /* ── TOAST GLOBAL ── */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 24px; border-radius: 40px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: all .35s ease; white-space: nowrap; z-index: 9999;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.success{ background:rgba(0,194,203,.2); border:1px solid var(--teal); color:var(--teal); }
+  .toast.info   { background:rgba(233,30,140,.18); border:1px solid var(--pink); color:var(--pink); }
+  .toast.warn   { background:rgba(245,158,11,.18); border:1px solid var(--amber); color:var(--amber); }
+
+  /* ── SHUTTER FLASH ── */
+  .shutter-flash {
+    position: absolute; inset: 0; background: #fff;
+    opacity: 0; pointer-events: none; z-index: 500;
+    transition: opacity .1s;
+  }
+  .shutter-flash.on { opacity: 0.55; }
+
+  @media (max-width: 820px) {
+    .app-nav { width:100%; position:static; flex-direction:row; flex-wrap:wrap; }
+    .nav-group-label { width:100%; }
+    .nav-btn { flex:1 1 auto; min-width:140px; }
+    .slideshow-panel { display:none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar" id="topBar">
+    <div class="top-bar-brand">
+      <span class="top-bar-dot"></span>
+      JOVI Vision
+    </div>
+    <div class="top-bar-user">
+      <span class="top-bar-greeting" id="topGreeting"></span>
+      <button class="top-bar-logout" id="btnLogout" type="button">Sair</button>
+    </div>
+  </div>
+
+  <main class="app-layout" role="main">
+
+    <!-- NAV -->
+    <nav class="app-nav" role="navigation" aria-label="Navegação entre telas">
+      <span class="nav-group-label">Câmera</span>
+      <button class="nav-btn active" data-screen="cam" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">📷</span>
+        <span>Foto Normal</span>
+      </button>
+
+      <span class="nav-group-label">Modos JOVI Vision</span>
+      <button class="nav-btn" data-screen="estudo" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">📖</span>
+        <span>Modo Estudo</span>
+      </button>
+      <button class="nav-btn" data-screen="ocr" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">🖥️</span>
+        <span>Scanner Lousa</span>
+      </button>
+      <button class="nav-btn" data-screen="doc" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">📄</span>
+        <span>Digitalizar</span>
+      </button>
+      <button class="nav-btn" data-screen="doc-result" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">✅</span>
+        <span>PDF Gerado</span>
+      </button>
+
+      <span class="nav-group-label">Ajustes</span>
+      <button class="nav-btn" data-screen="config" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">⚙️</span>
+        <span>Acessibilidade</span>
+      </button>
+
+      <!-- SLIDESHOW PANEL -->
+      <div class="slideshow-panel">
+        <div class="slideshow-label">Galeria de Modos</div>
+        <div class="slideshow-thumbs" id="slideshowThumbs"></div>
+        <div class="slide-counter" id="slideCounter">1 / 4</div>
+      </div>
+    </nav>
+
+    <!-- DEVICE -->
+    <section class="device-col" aria-label="Protótipo interativo">
+      <div class="phone-wrap">
+        <div class="phone" role="img" aria-label="Câmera do celular com JOVI Vision">
+          <div class="notch" aria-hidden="true"></div>
+
+          <!-- FLASH OVERLAY -->
+          <div class="shutter-flash" id="shutterFlash"></div>
+
+          <!-- SCREEN 1 · FOTO NORMAL -->
+          <section class="screen active" id="s-cam" aria-label="Câmera - modo Foto">
+            <div class="cam-viewfinder" aria-hidden="true"></div>
+            <div class="cam-scene" aria-hidden="true">
+              <div class="scene-building left"></div>
+              <div class="scene-building right"></div>
+              <div class="scene-street"></div>
+              <div class="scene-person"></div>
+            </div>
+            <div class="focus-grid" aria-hidden="true"></div>
+            <header class="status-bar">
+              <span class="status-time" id="clockCam">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <div class="cam-top">
+              <div class="cam-top-left">
+                <button class="cam-icon-btn" id="flashBtn" type="button" aria-label="Flash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </button>
+                <button class="cam-icon-btn" type="button" aria-label="Timer">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 3h6"/></svg>
+                </button>
+              </div>
+              <div class="cam-top-right">
+                <button class="cam-icon-btn" type="button" onclick="goTo('config')" aria-label="Configurações">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="jovi-brand-badge">
+              <span class="jovi-brand-badge-dot" aria-hidden="true"></span>
+              <span>JOVI Vision</span>
+            </div>
+            <div class="zoom-indicator">
+              <span class="zoom-btn" data-zoom="0.5">0.5×</span>
+              <span class="zoom-btn active" data-zoom="1">1×</span>
+              <span class="zoom-btn" data-zoom="2">2×</span>
+            </div>
+            <nav class="mode-strip" aria-label="Modos de câmera">
+              <button class="mode-pill" type="button" onclick="goTo('estudo')">Estudo</button>
+              <button class="mode-pill" type="button" onclick="goTo('ocr')">Lousa</button>
+              <button class="mode-pill active" type="button">Foto</button>
+              <button class="mode-pill" type="button" onclick="goTo('doc')">Digitalizar</button>
+              <button class="mode-pill" type="button">Vídeo</button>
+            </nav>
+            <footer class="cam-bottom">
+              <div class="thumb-preview" id="thumbPreview" aria-label="Última foto"></div>
+              <button class="shutter" id="shutterBtn" type="button" aria-label="Tirar foto">
+                <div class="shutter-inner"></div>
+              </button>
+              <button class="flip-btn" id="flipBtn" type="button" aria-label="Virar câmera">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              </button>
+            </footer>
+          </section>
+
+          <!-- SCREEN 2 · ESTUDO -->
+          <section class="screen" id="s-estudo" aria-label="Câmera - Modo Estudo">
+            <div class="cam-viewfinder" aria-hidden="true"></div>
+            <div class="focus-grid" aria-hidden="true"></div>
+            <div class="scan-line" aria-hidden="true"></div>
+            <figure class="estudo-doc" aria-label="Documento detectado">
+              <div class="doc-line title"></div>
+              <div class="doc-line"></div><div class="doc-line med"></div>
+              <div class="doc-line"></div><div class="doc-line short"></div>
+              <div class="doc-line"></div><div class="doc-line med"></div>
+            </figure>
+            <div class="doc-highlight" aria-hidden="true"></div>
+            <header class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <div class="cam-top">
+              <div class="cam-top-left">
+                <button class="cam-icon-btn" type="button" aria-label="Flash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </button>
+              </div>
+              <div class="cam-top-right">
+                <button class="cam-icon-btn" type="button" onclick="goTo('config')" aria-label="Configurações">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="jovi-brand-badge">
+              <span class="jovi-brand-badge-dot" aria-hidden="true"></span>
+              <span>Modo Estudo Ativo</span>
+            </div>
+            <aside class="ocr-panel" aria-live="polite">
+              <header class="ocr-panel-head">
+                <span class="ocr-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00C2CB" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                  LEITURA EM ANDAMENTO
+                </span>
+                <span class="ocr-conf">98.4% conf.</span>
+              </header>
+              <p class="ocr-text" id="ocrText">"A fotossíntese é o processo pelo qual as plantas convertem luz solar, água e CO₂ em glicose e oxigênio..."</p>
+              <div class="ocr-actions">
+                <button class="ocr-btn primary" id="btnOuvir" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+                  Ouvir
+                </button>
+                <button class="ocr-btn translate" id="btnTraduzir" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                  Traduzir
+                </button>
+                <button class="ocr-btn secondary" id="btnCopiar" type="button">Copiar</button>
+              </div>
+            </aside>
+            <nav class="mode-strip" aria-label="Modos de câmera">
+              <button class="mode-pill active" type="button">Estudo</button>
+              <button class="mode-pill" type="button" onclick="goTo('ocr')">Lousa</button>
+              <button class="mode-pill" type="button" onclick="goTo('cam')">Foto</button>
+              <button class="mode-pill" type="button" onclick="goTo('doc')">Digitalizar</button>
+              <button class="mode-pill" type="button">Vídeo</button>
+            </nav>
+            <footer class="cam-bottom">
+              <div class="thumb-preview"></div>
+              <button class="shutter" type="button" aria-label="Capturar"><div class="shutter-inner"></div></button>
+              <button class="flip-btn" type="button" aria-label="Virar câmera">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              </button>
+            </footer>
+          </section>
+
+          <!-- SCREEN 3 · LOUSA -->
+          <section class="screen" id="s-ocr" aria-label="Câmera - Scanner de Lousa">
+            <div class="cam-viewfinder" aria-hidden="true"></div>
+            <div class="focus-grid" aria-hidden="true"></div>
+            <figure class="blackboard" aria-label="Lousa detectada">
+              <div class="chalk-line title"></div>
+              <div class="chalk-line"></div><div class="chalk-line med"></div>
+              <div class="chalk-line srt"></div><div class="chalk-line"></div>
+              <div class="chalk-line med"></div>
+            </figure>
+            <div class="scan-zone" aria-hidden="true">
+              <span class="scan-corner tl"></span><span class="scan-corner tr"></span>
+              <span class="scan-corner bl"></span><span class="scan-corner br"></span>
+              <span class="scan-label">SCANNER OCR ATIVO</span>
+            </div>
+            <header class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <div class="cam-top">
+              <div class="cam-top-left">
+                <button class="cam-icon-btn" type="button" aria-label="Flash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </button>
+              </div>
+              <div class="cam-top-right">
+                <button class="cam-icon-btn" type="button" onclick="goTo('config')" aria-label="Configurações">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="jovi-brand-badge">
+              <span class="jovi-brand-badge-dot" aria-hidden="true"></span>
+              <span>Scanner de Lousa</span>
+            </div>
+            <aside class="result-panel" aria-live="polite">
+              <header class="result-head">
+                <span class="result-check" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span class="result-title">TEXTO CAPTURADO</span>
+              </header>
+              <p class="result-text" id="ocrLousaText">"Equação da Fotossíntese: 6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂. Processo ocorre nos cloroplastos..."</p>
+              <div class="result-actions">
+                <button class="res-btn pink" id="btnOuvirLousa" type="button">🔊 Ouvir</button>
+                <button class="res-btn" id="btnCopiarLousa" type="button">📋 Copiar</button>
+                <button class="res-btn" id="btnSalvarLousa" type="button">💾 Salvar</button>
+              </div>
+            </aside>
+            <nav class="mode-strip" aria-label="Modos de câmera">
+              <button class="mode-pill" type="button" onclick="goTo('estudo')">Estudo</button>
+              <button class="mode-pill active" type="button">Lousa</button>
+              <button class="mode-pill" type="button" onclick="goTo('cam')">Foto</button>
+              <button class="mode-pill" type="button" onclick="goTo('doc')">Digitalizar</button>
+              <button class="mode-pill" type="button">Vídeo</button>
+            </nav>
+            <footer class="cam-bottom">
+              <div class="thumb-preview"></div>
+              <button class="shutter" type="button" aria-label="Capturar"><div class="shutter-inner"></div></button>
+              <button class="flip-btn" type="button" aria-label="Virar câmera">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              </button>
+            </footer>
+          </section>
+
+          <!-- SCREEN 4 · DIGITALIZAR -->
+          <section class="screen" id="s-doc" aria-label="Câmera - Digitalizar Documento">
+            <div class="cam-viewfinder" aria-hidden="true"></div>
+            <div class="focus-grid" aria-hidden="true"></div>
+            <figure class="doc-preview" aria-label="Documento detectado">
+              <div class="doc-preview-line h"></div>
+              <div class="doc-preview-line"></div><div class="doc-preview-line m"></div>
+              <div class="doc-preview-line"></div><div class="doc-preview-line s"></div>
+              <div class="doc-preview-line"></div><div class="doc-preview-line m"></div>
+              <div class="doc-preview-line"></div><div class="doc-preview-line s"></div>
+            </figure>
+            <div class="doc-frame" aria-hidden="true">
+              <span class="doc-corner tl"></span><span class="doc-corner tr"></span>
+              <span class="doc-corner bl"></span><span class="doc-corner br"></span>
+            </div>
+            <header class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <div class="cam-top">
+              <div class="cam-top-left">
+                <button class="cam-icon-btn" type="button" aria-label="Flash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </button>
+              </div>
+              <div class="cam-top-right">
+                <button class="cam-icon-btn" type="button" onclick="goTo('config')" aria-label="Configurações">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="jovi-brand-badge">
+              <span class="jovi-brand-badge-dot" aria-hidden="true"></span>
+              <span>Digitalizar</span>
+            </div>
+            <aside class="doc-info-banner" role="status">
+              <span class="doc-info-icon" aria-hidden="true">📐</span>
+              <span class="doc-info-text">Bordas detectadas · Toque para capturar e gerar PDF</span>
+            </aside>
+            <nav class="mode-strip" aria-label="Modos de câmera">
+              <button class="mode-pill" type="button" onclick="goTo('estudo')">Estudo</button>
+              <button class="mode-pill" type="button" onclick="goTo('ocr')">Lousa</button>
+              <button class="mode-pill" type="button" onclick="goTo('cam')">Foto</button>
+              <button class="mode-pill active" type="button">Digitalizar</button>
+              <button class="mode-pill" type="button">Vídeo</button>
+            </nav>
+            <footer class="cam-bottom">
+              <div class="thumb-preview"></div>
+              <button class="shutter" type="button" aria-label="Capturar documento e gerar PDF" onclick="goTo('doc-result')">
+                <div class="shutter-inner"></div>
+              </button>
+              <button class="flip-btn" type="button" aria-label="Virar câmera">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              </button>
+            </footer>
+          </section>
+
+          <!-- SCREEN 5 · RESULTADO PDF -->
+          <section class="screen" id="s-doc-result" aria-label="Documento digitalizado">
+            <header class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <div class="result-head-bar">
+              <button class="cam-icon-btn" type="button" onclick="goTo('doc')" aria-label="Voltar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div class="res-title-group">
+                <span class="res-main-title">Documento capturado</span>
+                <span class="res-main-sub">PDF · 1 página · 142 KB</span>
+              </div>
+              <button class="cam-icon-btn" type="button" aria-label="Mais opções">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </button>
+            </div>
+            <article class="doc-card">
+              <div class="doc-card-preview" aria-label="Preview do PDF">
+                <div class="doc-card-line h"></div>
+                <div class="doc-card-line"></div><div class="doc-card-line m"></div>
+                <div class="doc-card-line"></div><div class="doc-card-line s"></div>
+                <div class="doc-card-line"></div><div class="doc-card-line m"></div>
+                <div class="doc-card-line"></div><div class="doc-card-line"></div>
+                <div class="doc-card-line s"></div>
+              </div>
+              <footer class="doc-card-meta">
+                <span><strong id="pdfFilename">Apostila_Bio.pdf</strong></span>
+                <span>Texto reconhecido: <strong>98%</strong></span>
+              </footer>
+            </article>
+            <div class="doc-actions-grid">
+              <button class="doc-action-primary" id="btnSalvarPdf" type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Salvar como PDF</span>
+              </button>
+              <div class="doc-actions-row">
+                <button class="doc-action-chip" id="btnExportar" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  <span>Exportar</span>
+                </button>
+                <button class="doc-action-chip" id="btnOuvirPdf" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
+                  <span>Ouvir</span>
+                </button>
+                <button class="doc-action-chip translate" id="btnTraduzirPdf" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                  <span>Traduzir</span>
+                </button>
+                <button class="doc-action-chip" id="btnCompartilhar" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  <span>Compartilhar</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- SCREEN 6 · CONFIGURAÇÕES -->
+          <section class="screen" id="s-config" aria-label="Configurações de acessibilidade">
+            <header class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons" aria-hidden="true">
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4" y="2" width="3" height="10" rx="1"/><rect x="8" y="0" width="3" height="12" rx="1"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/></svg>
+              </div>
+            </header>
+            <header class="config-head">
+              <button class="back-btn" type="button" onclick="goTo('cam')" aria-label="Voltar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <h2 class="config-title">Acessibilidade</h2>
+            </header>
+            <div class="config-content">
+              <section class="config-group">
+                <h3 class="config-group-title">Áudio</h3>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Leitura automática</span>
+                    <span class="config-row-desc">Ler texto detectado sem tocar</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Descrição de imagens</span>
+                    <span class="config-row-desc">Descrever gráficos e figuras</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label">
+                    <span>Velocidade da voz</span>
+                    <span style="color:var(--pink)" id="lblVelocidade">1.2×</span>
+                  </div>
+                  <div class="slider-track" id="trackVelocidade">
+                    <div class="slider-fill" style="width:60%" id="fillVelocidade"></div>
+                    <div class="slider-thumb" style="left:60%" id="thumbVelocidade"></div>
+                  </div>
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label">
+                    <span>Volume</span>
+                    <span style="color:var(--pink)" id="lblVolume">80%</span>
+                  </div>
+                  <div class="slider-track" id="trackVolume">
+                    <div class="slider-fill" style="width:80%" id="fillVolume"></div>
+                    <div class="slider-thumb" style="left:80%" id="thumbVolume"></div>
+                  </div>
+                </div>
+              </section>
+              <section class="config-group">
+                <h3 class="config-group-title">Navegação</h3>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Comandos por voz</span>
+                    <span class="config-row-desc">"Ei JOVI, abrir Modo Estudo"</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Feedback vibratório</span>
+                    <span class="config-row-desc">Vibração em ações e confirmações</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Alto contraste</span>
+                    <span class="config-row-desc">Para usuários com baixa visão</span>
+                  </div>
+                  <button class="switch" id="switchContraste" role="switch" aria-checked="false" type="button"></button>
+                </div>
+              </section>
+              <section class="config-group">
+                <h3 class="config-group-title">Idioma &amp; Tradução</h3>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Tradução automática</span>
+                    <span class="config-row-desc">Traduzir textos capturados</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Idioma de destino</span>
+                    <span class="config-row-desc" id="idiomaDesc">Português (BR)</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </section>
+              <section class="config-group">
+                <h3 class="config-group-title">Privacidade</h3>
+                <div class="config-row">
+                  <div class="config-row-label">
+                    <span class="config-row-title">Modo offline</span>
+                    <span class="config-row-desc">Processar tudo localmente</span>
+                  </div>
+                  <button class="switch on" role="switch" aria-checked="true" type="button"></button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+        </div><!-- /phone -->
+      </div><!-- /phone-wrap -->
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     JAVASCRIPT — Slide 22: todos os requisitos cobertos
+     ══════════════════════════════════════════════════════════════════════ -->
+<script>
+
+  // ══════════════════════════════════════════════════════
+  // 1. VARIÁVEIS E STRINGS — manipulação explícita
+  // ══════════════════════════════════════════════════════
+  const APP_NAME    = 'JOVI Vision';
+  const APP_VERSION = '2.0';
+  const MODOS       = ['cam', 'estudo', 'ocr', 'doc', 'doc-result', 'config'];
+
+  let currentScreen  = 'cam';
+  let flashOn        = false;
+  let fotoCount      = 0;
+  let slideshowIndex = 0;
+  let slideshowTimer = null;
+
+  // Textos OCR simulados
+  const ocrTextos = [
+    '"A fotossíntese é o processo pelo qual as plantas convertem luz solar, água e CO₂ em glicose e oxigênio..."',
+    '"Newton formulou as três leis do movimento que descrevem a relação entre forças e aceleração dos corpos..."',
+    '"A Revolução Industrial iniciou-se na Inglaterra no século XVIII, transformando a produção artesanal em industrial..."',
+    '"O teorema de Pitágoras afirma que o quadrado da hipotenusa é igual à soma dos quadrados dos catetos..."',
+  ];
+  let ocrIndex = 0;
+
+  // Slideshow de modos
+  const slideshowModos = [
+    { icon: '📷', name: 'Foto Normal',    desc: 'Câmera padrão',         screen: 'cam' },
+    { icon: '📖', name: 'Modo Estudo',    desc: 'OCR + Leitura em voz',  screen: 'estudo' },
+    { icon: '🖥️', name: 'Scanner Lousa', desc: 'Captura de quadro',      screen: 'ocr' },
+    { icon: '📄', name: 'Digitalizar',   desc: 'Gera PDF do documento',  screen: 'doc' },
+  ];
+
+  // ══════════════════════════════════════════════════════
+  // 2. TOAST
+  // ══════════════════════════════════════════════════════
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = `toast ${type} show`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 3. RELÓGIO EM TEMPO REAL
+  // ══════════════════════════════════════════════════════
+  function updateClock() {
+    const now  = new Date();
+    const hh   = String(now.getHours()).padStart(2, '0');
+    const mm   = String(now.getMinutes()).padStart(2, '0');
+    const time = `${hh}:${mm}`;
+    document.querySelectorAll('.status-time').forEach(el => el.textContent = time);
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ══════════════════════════════════════════════════════
+  // 4. SESSÃO / USUÁRIO
+  // ══════════════════════════════════════════════════════
+  function initSession() {
+    const raw = sessionStorage.getItem('jovi_user');
+    const topGreeting = document.getElementById('topGreeting');
+
+    if (raw) {
+      const user = JSON.parse(raw);
+      const primeiroNome = user.nome.split(' ')[0];
+      const hora = new Date().getHours();
+      const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+      topGreeting.innerHTML = `<strong>${saudacao}, ${primeiroNome}!</strong> RM ${user.rm}`;
+    } else {
+      topGreeting.innerHTML = `<strong>${APP_NAME}</strong> v${APP_VERSION}`;
+    }
+  }
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    const confirma = confirm('Deseja sair do JOVI Vision?');
+    if (confirma) {
+      sessionStorage.removeItem('jovi_user');
+      alert('Você saiu. Redirecionando para o login...');
+      window.location.href = 'login.html';
+    }
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 5. NAVEGAÇÃO ENTRE TELAS (DOM manipulation)
+  // ══════════════════════════════════════════════════════
+  function goTo(id) {
+    // Remove active de todas as screens e nav-btns
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+    // Ativa screen e nav btn
+    const screen = document.getElementById('s-' + id);
+    const navBtn = document.querySelector(`.nav-btn[data-screen="${id}"]`);
+
+    if (screen) screen.classList.add('active');
+    if (navBtn) navBtn.classList.add('active');
+
+    currentScreen = id;
+
+    // Atualiza slideshow counter/highlight
+    updateSlideshowHighlight(id);
+
+    // Rotaciona texto OCR ao entrar no modo estudo
+    if (id === 'estudo') rotateOcrText();
+  }
+
+  // Eventos nos nav-btns
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => goTo(btn.dataset.screen));
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 6. SWITCHES (toggle DOM)
+  // ══════════════════════════════════════════════════════
+  document.querySelectorAll('.switch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      sw.classList.toggle('on');
+      const estado = sw.classList.contains('on');
+      sw.setAttribute('aria-checked', estado);
+
+      // Identifica qual switch foi clicado pelo contexto do pai
+      const titulo = sw.closest('.config-row')
+        ?.querySelector('.config-row-title')?.textContent || '';
+
+      const msg = estado
+        ? `✅ ${titulo} ativado`
+        : `🔕 ${titulo} desativado`;
+      showToast(msg, estado ? 'success' : 'info');
+    });
+  });
+
+  // Switch de alto contraste muda variáveis CSS
+  document.getElementById('switchContraste')?.addEventListener('click', function() {
+    const on = this.classList.contains('on');
+    document.documentElement.style.setProperty(
+      '--bg-contrast',
+      on ? '#000000' : '#060a15'
+    );
+    document.body.style.filter = on ? 'contrast(1.4) brightness(1.15)' : '';
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 7. ZOOM BUTTONS (manipulação de variáveis + DOM)
+  // ══════════════════════════════════════════════════════
+  document.querySelectorAll('.zoom-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const zoom = btn.dataset.zoom;
+      showToast(`🔍 Zoom: ${zoom}×`, 'info');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 8. FLASH BUTTON
+  // ══════════════════════════════════════════════════════
+  document.getElementById('flashBtn')?.addEventListener('click', function() {
+    flashOn = !flashOn;
+    this.style.background = flashOn ? 'rgba(245,158,11,0.4)' : 'rgba(0,0,0,0.5)';
+    this.style.borderColor = flashOn ? 'var(--amber)' : 'var(--border)';
+    showToast(flashOn ? '⚡ Flash ativado' : '⚡ Flash desativado', 'warn');
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 9. SHUTTER (tirar foto) — manipulação de imagens/DOM
+  // ══════════════════════════════════════════════════════
+  document.getElementById('shutterBtn')?.addEventListener('click', () => {
+    fotoCount++;
+    const flash = document.getElementById('shutterFlash');
+
+    // Efeito de flash
+    flash.classList.add('on');
+    setTimeout(() => flash.classList.remove('on'), 180);
+
+    // Atualiza thumbnail com cor diferente por foto
+    const colors = ['#E91E8C','#00C2CB','#7C3AED','#F59E0B','#16A34A'];
+    const cor = colors[fotoCount % colors.length];
+    const thumb = document.getElementById('thumbPreview');
+    if (thumb) {
+      thumb.style.background = `linear-gradient(135deg, ${cor}66, ${cor}22)`;
+      thumb.style.borderColor = `${cor}44`;
+    }
+
+    // Manipulação de string: formata nome do arquivo
+    const now        = new Date();
+    const timestamp  = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    const filename   = `JOVI_${timestamp}_${String(fotoCount).padStart(3,'0')}.jpg`;
+
+    showToast(`📸 Foto ${fotoCount} salva: ${filename}`, 'success');
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 10. FLIP CÂMERA
+  // ══════════════════════════════════════════════════════
+  let camFrontal = false;
+  document.getElementById('flipBtn')?.addEventListener('click', () => {
+    camFrontal = !camFrontal;
+    const camScene = document.querySelector('#s-cam .cam-scene');
+    if (camScene) {
+      camScene.style.filter = camFrontal ? 'hue-rotate(180deg) saturate(.6)' : '';
+    }
+    showToast(camFrontal ? '🤳 Câmera frontal' : '📷 Câmera traseira', 'info');
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 11. OCR — BOTÕES MODO ESTUDO
+  // ══════════════════════════════════════════════════════
+  function rotateOcrText() {
+    ocrIndex = (ocrIndex + 1) % ocrTextos.length;
+    const el = document.getElementById('ocrText');
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = ocrTextos[ocrIndex];
+        el.style.opacity = '1';
+        el.style.transition = 'opacity .4s';
+      }, 200);
+    }
+  }
+
+  document.getElementById('btnOuvir')?.addEventListener('click', () => {
+    const texto = document.getElementById('ocrText')?.textContent || '';
+    // Usa Web Speech API se disponível
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(texto.replace(/[""]/g,''));
+      utter.lang = 'pt-BR';
+      utter.rate = 1.1;
+      window.speechSynthesis.speak(utter);
+      showToast('🔊 Lendo texto em voz alta...', 'success');
+    } else {
+      showToast('🔊 Leitura em voz alta ativada', 'success');
+    }
+  });
+
+  document.getElementById('btnTraduzir')?.addEventListener('click', () => {
+    // Simula tradução: inverte palavras como demonstração de manipulação de string
+    const el = document.getElementById('ocrText');
+    if (!el) return;
+    const original = el.textContent;
+
+    // Troca algumas palavras por "tradução" simulada
+    const traducoes = {
+      'fotossíntese': 'photosynthesis',
+      'processo': 'process',
+      'plantas': 'plants',
+      'convertem': 'convert',
+      'luz solar': 'sunlight',
+      'água': 'water',
+      'oxigênio': 'oxygen',
+    };
+
+    let traduzido = original;
+    for (const [pt, en] of Object.entries(traducoes)) {
+      traduzido = traduzido.replace(new RegExp(pt, 'gi'), en);
+    }
+
+    el.textContent = traduzido;
+    showToast('🌐 Texto traduzido para inglês', 'info');
+
+    setTimeout(() => {
+      el.textContent = original;
+      showToast('🔄 Texto original restaurado', 'info');
+    }, 4000);
+  });
+
+  document.getElementById('btnCopiar')?.addEventListener('click', () => {
+    const texto = document.getElementById('ocrText')?.textContent || '';
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(texto).then(() => {
+        showToast('📋 Texto copiado para a área de transferência!', 'success');
+      });
+    } else {
+      showToast('📋 Texto copiado!', 'success');
+    }
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 12. OCR LOUSA — BOTÕES
+  // ══════════════════════════════════════════════════════
+  document.getElementById('btnOuvirLousa')?.addEventListener('click', () => {
+    const texto = document.getElementById('ocrLousaText')?.textContent || '';
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(texto.replace(/[""]/g,''));
+      utter.lang = 'pt-BR';
+      window.speechSynthesis.speak(utter);
+    }
+    showToast('🔊 Lendo conteúdo da lousa...', 'success');
+  });
+
+  document.getElementById('btnCopiarLousa')?.addEventListener('click', () => {
+    const texto = document.getElementById('ocrLousaText')?.textContent || '';
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(texto).then(() =>
+        showToast('📋 Texto da lousa copiado!', 'success')
+      );
+    } else {
+      showToast('📋 Texto copiado!', 'success');
+    }
+  });
+
+  document.getElementById('btnSalvarLousa')?.addEventListener('click', () => {
+    const now = new Date();
+    const filename = `Lousa_${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${now.getFullYear()}.txt`;
+    showToast(`💾 Salvo como ${filename}`, 'success');
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 13. PDF — BOTÕES
+  // ══════════════════════════════════════════════════════
+  document.getElementById('btnSalvarPdf')?.addEventListener('click', () => {
+    const nome = prompt('Nome do arquivo PDF:', 'Apostila_Bio.pdf');
+    if (nome && nome.trim()) {
+      const nomeFormatado = nome.trim().endsWith('.pdf') ? nome.trim() : nome.trim() + '.pdf';
+      document.getElementById('pdfFilename').textContent = nomeFormatado;
+      showToast(`💾 PDF salvo: ${nomeFormatado}`, 'success');
+    }
+  });
+
+  document.getElementById('btnExportar')?.addEventListener('click', () => {
+    const opcao = prompt('Exportar para:\n1 - Google Drive\n2 - Notion\n3 - WhatsApp\n\nDigite o número:');
+    const destinos = { '1': 'Google Drive', '2': 'Notion', '3': 'WhatsApp' };
+    const destino = destinos[opcao?.trim()];
+    if (destino) {
+      showToast(`📤 Exportado para ${destino}!`, 'success');
+    } else if (opcao !== null) {
+      alert('Opção inválida. Escolha 1, 2 ou 3.');
+    }
+  });
+
+  document.getElementById('btnOuvirPdf')?.addEventListener('click', () => {
+    const conteudo = 'Documento digitalizado: Apostila de Biologia. Página 1 de 1. Taxa de reconhecimento: 98 porcento.';
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(conteudo);
+      utter.lang = 'pt-BR';
+      window.speechSynthesis.speak(utter);
+    }
+    showToast('🔊 Lendo documento...', 'success');
+  });
+
+  document.getElementById('btnTraduzirPdf')?.addEventListener('click', () => {
+    const idiomas = ['Inglês (EN)', 'Espanhol (ES)', 'Francês (FR)', 'Alemão (DE)'];
+    const escolha = prompt(`Traduzir para:\n${idiomas.map((l,i)=>`${i+1} - ${l}`).join('\n')}\n\nDigite o número:`);
+    const idx = parseInt(escolha) - 1;
+    if (!isNaN(idx) && idiomas[idx]) {
+      showToast(`🌐 Traduzindo para ${idiomas[idx]}...`, 'info');
+    } else if (escolha !== null) {
+      alert('Opção inválida.');
+    }
+  });
+
+  document.getElementById('btnCompartilhar')?.addEventListener('click', () => {
+    const filename = document.getElementById('pdfFilename')?.textContent || 'Documento.pdf';
+    if (navigator.share) {
+      navigator.share({ title: `JOVI Vision — ${filename}`, text: `Documento digitalizado pelo JOVI Vision: ${filename}` })
+        .then(() => showToast('✅ Compartilhado!', 'success'))
+        .catch(() => showToast('❌ Compartilhamento cancelado', 'warn'));
+    } else {
+      alert(`📤 Compartilhar: ${filename}\n\nLink copiado para a área de transferência.\n(Web Share API não disponível neste navegador)`);
+      showToast('📤 Link copiado!', 'success');
+    }
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 14. SLIDESHOW DE MODOS (imagens/thumbnails)
+  // ══════════════════════════════════════════════════════
+  function buildSlideshowThumbs() {
+    const container = document.getElementById('slideshowThumbs');
+    if (!container) return;
+    container.innerHTML = '';
+
+    slideshowModos.forEach((modo, i) => {
+      const item = document.createElement('div');
+      item.className   = `thumb-item${i === 0 ? ' active-slide' : ''}`;
+      item.dataset.idx = i;
+      item.innerHTML   = `
+        <span class="thumb-icon">${modo.icon}</span>
+        <div class="thumb-meta">
+          <span class="thumb-name">${modo.name}</span>
+          <span class="thumb-desc">${modo.desc}</span>
+        </div>`;
+
+      item.addEventListener('click', () => {
+        slideshowIndex = i;
+        updateSlideshowHighlight(modo.screen);
+        goTo(modo.screen);
+      });
+      container.appendChild(item);
+    });
+  }
+
+  function updateSlideshowHighlight(screenId) {
+    const idx = slideshowModos.findIndex(m => m.screen === screenId);
+    if (idx === -1) return;
+    slideshowIndex = idx;
+
+    document.querySelectorAll('.thumb-item').forEach((el, i) => {
+      el.classList.toggle('active-slide', i === idx);
+    });
+
+    const counter = document.getElementById('slideCounter');
+    if (counter) counter.textContent = `${idx + 1} / ${slideshowModos.length}`;
+  }
+
+  // Auto-slideshow a cada 5s (apenas atualiza highlight, não navega)
+  function startAutoSlideshow() {
+    slideshowTimer = setInterval(() => {
+      slideshowIndex = (slideshowIndex + 1) % slideshowModos.length;
+      updateSlideshowHighlight(slideshowModos[slideshowIndex].screen);
+    }, 5000);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 15. SLIDERS INTERATIVOS (eventos de arrastar)
+  // ══════════════════════════════════════════════════════
+  function initSlider(trackId, fillId, thumbId, labelId, minVal, maxVal, unit, decimals) {
+    const track = document.getElementById(trackId);
+    const fill  = document.getElementById(fillId);
+    const thumb = document.getElementById(thumbId);
+    const label = document.getElementById(labelId);
+    if (!track || !fill || !thumb || !label) return;
+
+    let dragging = false;
+
+    function updateSlider(clientX) {
+      const rect = track.getBoundingClientRect();
+      let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const pctStr = (pct * 100).toFixed(0) + '%';
+      fill.style.width   = pctStr;
+      thumb.style.left   = pctStr;
+      const valor = (minVal + pct * (maxVal - minVal)).toFixed(decimals);
+      label.textContent = `${valor}${unit}`;
+    }
+
+    track.addEventListener('mousedown', e => { dragging = true; updateSlider(e.clientX); });
+    track.addEventListener('touchstart', e => { dragging = true; updateSlider(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('mousemove', e => { if (dragging) updateSlider(e.clientX); });
+    document.addEventListener('touchmove', e => { if (dragging) updateSlider(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('mouseup',  () => { dragging = false; });
+    document.addEventListener('touchend', () => { dragging = false; });
+  }
+
+  initSlider('trackVelocidade','fillVelocidade','thumbVelocidade','lblVelocidade', 0.5, 2.0, '×', 1);
+  initSlider('trackVolume',    'fillVolume',    'thumbVolume',    'lblVolume',     0,   100, '%', 0);
+
+  // ══════════════════════════════════════════════════════
+  // 16. INIT
+  // ══════════════════════════════════════════════════════
+  initSession();
+  buildSlideshowThumbs();
+  startAutoSlideshow();
+  goTo('cam');
+
+</script>
+</body>
+</html>
