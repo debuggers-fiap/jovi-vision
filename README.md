@@ -105,4 +105,4 @@ jovi-vision/
 **Web Development — Sprint 2**
 FIAP · Engenharia de Software · Challenge 2026
 Parceria: JOVI Smartphone
-Data de entrega: **15 de maio de 2026**
+
